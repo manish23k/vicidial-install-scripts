@@ -446,7 +446,7 @@ cat <<CRONTAB>> /root/crontab-file
 
 ###certbot renew
 51 23 1 * * /usr/bin/systemctl stop firewalld
-52 23 1 * * /usr/sbin/certbot renew
+52 23 1 * * /usr/bin/certbot renew
 53 23 1 * * /usr/bin/systemctl start firewalld
 54 23 1 * * /usr/bin/systemctl restart httpd
 
@@ -814,6 +814,10 @@ cat <<WELCOME>> /var/www/html/index.html
 <META HTTP-EQUIV=REFRESH CONTENT="1; URL=/vicidial/welcome.php">
 Please Hold while I redirect you!
 WELCOME
+
+cd /usr/src/vicidial-vicidial-install
+chmod +x confbridges.sh
+./confbridges.sh
 
 tee -a /etc/asterisk/manager.conf <<EOF
 
