@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Vicidial installation AlmaLinux/RockyLinux with CyburPhone and Dynamic portal"
+echo "Vicidial installation AlmaLinux/RockyLinux with Dynamic portal"
 
 export LC_ALL=C
 
@@ -620,10 +620,10 @@ systemctl enable rc-local
 systemctl start rc-local
 
 ##Install CyburPhone
-cd /var/www/html
-git clone https://github.com/carpenox/CyburPhone.git
-chmod -R 744 CyburPhone
-chown -R apache:apache CyburPhone
+###cd /var/www/html
+###git clone https://github.com/carpenox/CyburPhone.git
+###chmod -R 744 CyburPhone
+###chown -R apache:apache CyburPhone
 
 ##Install Dynportal
 yum install -y firewalld
@@ -777,12 +777,12 @@ sed -i 's|#Banner none|Banner /etc/ssh/sshd_banner|g' /etc/ssh/sshd_config
 
 
 tee -a /etc/ssh/sshd_banner <<EOF
-Thank you for choosing CyburDial and carpenox's auto installer!
+Thank you for choosing Manish's auto installer!
 
-Visit our Knowledge Base at https://www.dialer.one
+Visit our Knowledge Base at https://manishkadiya.blogspot.com/
 
-Support: info@dialer.one
-Skype Live Chat Support: https://join.skype.com/ujkQ7i5lV78O
+Support: manish.23k@gmail.com
+Skype Live Chat Support: https://join.skype.com/manish.kadiya
 EOF
 
 #add rc-local as a service - thx to ras
