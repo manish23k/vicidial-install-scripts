@@ -13,7 +13,7 @@ hostnamectl set-hostname xxxxxx.xxxxx.xxx
 vi /etc/hosts
 ##Change domain name for actual server ip (xxx.xxx.xxx.xxx   complete domain name    subdomain only)
 
-timedatectl set-timezone America/New_York
+timedatectl set-timezone Asia/Kolkata
 
 yum check-update
 yum update -y
@@ -41,7 +41,7 @@ git clone https://github.com/carpenox/vicidial-install-scripts.git
 cd vicidial-install-scripts
 ```
 
-# Alma/Rocky 9 Installer with Dynamic portal, CyburPhone, SSL Cert and Asterisk 11
+# Alma/Rocky 9 Installer with Dynamic portal, SSL Cert and Asterisk 11
 
 ```
 cd /usr/src/vicidial-install-scripts
@@ -49,7 +49,7 @@ chmod +x alma-rocky9-ast11.sh
 ./alma-rocky9-ast11.sh
 ```
 
-# Alma/Rocky 9 Installer with Dynamic portal, CyburPhone, SSL Cert and Asterisk 16
+# Alma/Rocky 9 Installer with Dynamic portal, SSL Cert and Asterisk 16
 
 ```
 cd /usr/src/vicidial-install-scripts
@@ -59,7 +59,7 @@ chmod +x alma-rocky9-ast16.sh
 
 Make sure you update your SSL cert location in /etc/httpd/conf.d/viciportal-ssl.conf
 
-# Alma/Rocky 9 Installer with Dynamic portal and CyburPhone with SSL cert with Asterisk 18
+# Alma/Rocky 9 Installer with Dynamic portal and with SSL cert with Asterisk 18
 
 ```
 cd /usr/src/vicidial-install-scripts
