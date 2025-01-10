@@ -216,8 +216,11 @@ cd /usr/src/
 mkdir dahdi-linux-complete-3.4.0+3.4.0
 ## tar -xzvf dahdi-linux-complete-3.4.0+3.4.0.tar.gz
 cd dahdi-linux-complete-3.4.0+3.4.0
-wget https://cybur-dial.com/dahdi-9.4-fix.zip
-unzip dahdi-9.4-fix.zip
+#wget https://cybur-dial.com/dahdi-9.4-fix.zip
+#unzip dahdi-9.4-fix.zip
+#yum in newt* -y
+wget https://cybur-dial.com/dahdi-9.5-fix.zip
+unzip dahdi-9.5-fix.zip
 yum in newt* -y
 
 ## sudo sed -i 's|(netdev, \&wc->napi, \&wctc4xxp_poll, 64);|(netdev, \&wc->napi, \&wctc4xxp_poll);|g' /usr/src/dahdi-linux-complete-3.4.0+3.4.0/linux/drivers/dahdi/wctc4xxp/base.c
@@ -249,8 +252,9 @@ echo 'Continuing...'
 mkdir /usr/src/asterisk
 cd /usr/src/asterisk
 wget https://downloads.asterisk.org/pub/telephony/libpri/libpri-1.6.1.tar.gz
-wget https://downloads.asterisk.org/pub/telephony/asterisk/old-releases/asterisk-18.18.1.tar.gz
-tar -xvzf asterisk-*
+# wget https://downloads.asterisk.org/pub/telephony/asterisk/old-releases/asterisk-18.18.1.tar.gz
+wget https://download.vicidial.com/required-apps/asterisk-18.21.0-vici.tar.gz
+tar -xvzf asterisk-18.21.0-vici.tar.gz
 tar -xvzf libpri-*
 
 cd /usr/src
@@ -261,24 +265,25 @@ cd libsrtp-2.1.0
 make shared_library && sudo make install
 ldconfig
 
-cd /usr/src/asterisk/asterisk-18.18.1/
-wget http://download.vicidial.com/asterisk-patches/Asterisk-18/amd_stats-18.patch
-wget http://download.vicidial.com/asterisk-patches/Asterisk-18/iax_peer_status-18.patch
-wget http://download.vicidial.com/asterisk-patches/Asterisk-18/sip_peer_status-18.patch
-wget http://download.vicidial.com/asterisk-patches/Asterisk-18/timeout_reset_dial_app-18.patch
-wget http://download.vicidial.com/asterisk-patches/Asterisk-18/timeout_reset_dial_core-18.patch
-cd apps/
-wget http://download.vicidial.com/asterisk-patches/Asterisk-18/enter.h
-wget http://download.vicidial.com/asterisk-patches/Asterisk-18/leave.h
-yes | cp -rf enter.h.1 enter.h
-yes | cp -rf leave.h.1 leave.h
+# cd /usr/src/asterisk/asterisk-18.18.1/
+cd /usr/src/asterisk/asterisk-18.21.0-vici/
+## wget http://download.vicidial.com/asterisk-patches/Asterisk-18/amd_stats-18.patch
+## wget http://download.vicidial.com/asterisk-patches/Asterisk-18/iax_peer_status-18.patch
+## wget http://download.vicidial.com/asterisk-patches/Asterisk-18/sip_peer_status-18.patch
+## wget http://download.vicidial.com/asterisk-patches/Asterisk-18/timeout_reset_dial_app-18.patch
+## wget http://download.vicidial.com/asterisk-patches/Asterisk-18/timeout_reset_dial_core-18.patch
+## cd apps/
+## wget http://download.vicidial.com/asterisk-patches/Asterisk-18/enter.h
+## wget http://download.vicidial.com/asterisk-patches/Asterisk-18/leave.h
+## yes | cp -rf enter.h.1 enter.h
+## yes | cp -rf leave.h.1 leave.h
 
-cd /usr/src/asterisk/asterisk-18.18.1/
-patch < amd_stats-18.patch apps/app_amd.c
-patch < iax_peer_status-18.patch channels/chan_iax2.c
-patch < sip_peer_status-18.patch channels/chan_sip.c
-patch < timeout_reset_dial_app-18.patch apps/app_dial.c
-patch < timeout_reset_dial_core-18.patch main/dial.c
+## cd /usr/src/asterisk/asterisk-18.18.1/
+## patch < amd_stats-18.patch apps/app_amd.c
+## patch < iax_peer_status-18.patch channels/chan_iax2.c
+## patch < sip_peer_status-18.patch channels/chan_sip.c
+## patch < timeout_reset_dial_app-18.patch apps/app_dial.c
+## patch < timeout_reset_dial_core-18.patch main/dial.c
 
 yum in libuuid-devel libxml2-devel -y
 
@@ -301,6 +306,7 @@ make install
 read -p 'Press Enter to continue: '
 
 echo 'Continuing...'
+
 
 #Install astguiclient
 echo "Installing astguiclient"
