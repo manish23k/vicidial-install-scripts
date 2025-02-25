@@ -309,7 +309,7 @@ echo 'Continuing...'
 
 
 #Install astguiclient
-echo "Installing astguiclient"
+#echo "Installing astguiclient"
 #mkdir /usr/src/astguiclient
 #cd /usr/src/astguiclient
 #svn checkout svn://svn.eflo.net/agc_2-X/trunk
