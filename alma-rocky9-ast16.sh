@@ -283,10 +283,52 @@ read -p 'Press Enter to continue: '
 echo 'Continuing...'
 
 #Install astguiclient
+#echo "Installing astguiclient"
+#mkdir /usr/src/astguiclient
+#cd /usr/src/astguiclient
+#svn checkout svn://svn.eflo.net/agc_2-X/trunk
+#cd /usr/src/astguiclient/trunk
 echo "Installing astguiclient"
+
+# Create necessary directories
 mkdir /usr/src/astguiclient
+mkdir /usr/src/extra
 cd /usr/src/astguiclient
-svn checkout svn://svn.eflo.net/agc_2-X/trunk
+
+# Remove any existing trunk folder and clear the screen
+rm -rf /usr/src/astguiclient/trunk
+clear
+
+# Initialize variables
+c=1
+dl=0
+
+# Loop to ask for SVN version code
+while ([ $c -le 3 ] && [ $dl -eq 0 ])
+do
+    echo -n "Please enter 4 digit SVN version code (Keep blank for latest SVN): "
+    read svn
+    if [[ $svn = '' ]]
+    then
+        svn checkout svn://svn.eflo.net:3690/agc_2-X/trunk
+        dl=1
+    else
+        svn checkout -r $svn svn://svn.eflo.net:3690/agc_2-X/trunk | grep -q 'No such revision'
+        if [ $? -eq 0 ]; then
+            echo "Error: SVN version $svn is not valid. Please try again."
+            (( c++ ))
+        else
+            dl=1
+        fi
+    fi
+done
+
+# Exit if download failed
+if [[ $dl == "0" ]]; then
+    exit 1
+fi
+
+# Navigate to the SVN trunk directory
 cd /usr/src/astguiclient/trunk
 
 #Add mysql users and Databases
