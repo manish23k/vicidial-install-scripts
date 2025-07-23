@@ -831,8 +831,8 @@ Thank you for choosing Manish's auto installer!
 
 Visit our Knowledge Base at https://manishkadiya.blogspot.com/
 
-Support: manish.23k@gmail.com
-Skype Live Chat Support: https://join.skype.com/manish.kadiya
+Support: manish.23k@gmail.com / https://discord.gg/manishkadiya_81630
+Need help? Join the Discord: https://discord.gg/Tbe4dAsX
 EOF
 
 #add rc-local as a service - thx to ras
