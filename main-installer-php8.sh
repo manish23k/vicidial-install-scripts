@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "Vicidial installation AlmaLinux/RockyLinux with CyburPhone and Dynamic portal"
+echo "Vicidial installation AlmaLinux/RockyLinux with WebPhone and Dynamic portal"
 
 # Function to prompt user for input
 prompt() {
@@ -77,7 +77,7 @@ max_input_time = 3360
 post_max_size = 448M
 upload_max_filesize = 442M
 default_socket_timeout = 3360
-date.timezone = America/New_York
+date.timezone = Asia/Kolkata
 max_input_vars = 50000
 EOF
 
