@@ -802,12 +802,12 @@ sox -t ul -r 8000 -c 1 ../mohmp3/manolo_camp-morning_coffee.ulaw -t ul manolo_ca
 tee -a ~/.bashrc <<EOF
 
 # Commands
-/usr/share/astguiclient/ADMIN_keepalive_ALL.pl --cu3way
-/usr/bin/systemctl status httpd --no-pager
-/usr/bin/systemctl status firewalld --no-pager
-/usr/bin/screen -ls
-/usr/sbin/dahdi_cfg -v
-/usr/sbin/asterisk -V
+#/usr/share/astguiclient/ADMIN_keepalive_ALL.pl --cu3way
+#/usr/bin/systemctl status httpd --no-pager
+#/usr/bin/systemctl status firewalld --no-pager
+#/usr/bin/screen -ls
+#/usr/sbin/dahdi_cfg -v
+#/usr/sbin/asterisk -V
 EOF
 
 
