@@ -459,10 +459,10 @@ cat <<CRONTAB>> /root/crontab-file
 0 2 * * * /usr/share/astguiclient/ADMIN_backup.pl
 
 ###certbot renew
-51 23 1 * * /usr/bin/systemctl stop firewalld
+#51 23 1 * * /usr/bin/systemctl stop firewalld
 52 23 1 * * /usr/bin/certbot renew
-53 23 1 * * /usr/bin/systemctl start firewalld
-54 23 1 * * /usr/bin/systemctl restart httpd
+#53 23 1 * * /usr/bin/systemctl start firewalld
+#54 23 1 * * /usr/bin/systemctl restart httpd
 
 ### recording mixing/compressing/ftping scripts
 #0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57 * * * * /usr/share/astguiclient/AST_CRON_audio_1_move_mix.pl
