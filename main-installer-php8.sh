@@ -887,6 +887,10 @@ mysql -e "use asterisk; update system_settings set active_voicemail_server='$ip_
 cp /etc/letsencrypt/live/$hostname/fullchain.pem /etc/cockpit/ws-certs.d/wildcart.$hostname.cert
 cp /etc/letsencrypt/live/$hostname/privkey.pem /etc/cockpit/ws-certs.d/wildcart.$hostname.key
 systemctl restart cockpit.socket
+####Dahdi Fix for Alma9 
+cd /usr/src/vicidial-install-scripts
+chmod +x fix-dahdi-asterisk-el9-v4.sh
+./fix-dahdi-asterisk-el9-v4.sh
 
 read -p 'Press Enter to Reboot: '
 
