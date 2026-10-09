@@ -32,17 +32,20 @@ export LC_ALL=C
 
 dnf groupinstall "Development Tools" -y
 dnf install perl perl-core perl-devel perl-ExtUtils-MakeMaker perl-ExtUtils-Manifest perl-CPAN -y
+dnf install perl-devel perl-ExtUtils-MakeMaker perl-ExtUtils-Embed -y
+dnf install libX11-devel libXext-devel libXft-devel libXpm-devel libXrender-devel libjpeg-devel libpng-devel freetype-devel -y
 
 yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 yum -y install yum-utils
 dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm -y
 dnf install https://rpms.remirepo.net/enterprise/remi-release-10.rpm -y
-dnf module reset php -y
-dnf module enable php:remi-8.4 -y
-dnf module enable mariadb:10.11 -y
+dnf module enable php:remi-7.4 -y
+dnf module enable mariadb:10.5 -y
+
+
+#dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-10.noarch.rpm -y
 
 dnf -y install dnf-plugins-core
-
 
 yum install -y php screen php-mcrypt subversion php-cli php-gd php-curl php-mysql php-ldap php-zip php-fileinfo php-opcache -y 
 sleep 2
@@ -71,8 +74,8 @@ dnf config-manager --set-enabled crb
 yum install libsrtp-devel -y
 
 ### Install cockpit
-yum -y install cockpit cockpit-storaged cockpit-navigator
-sed -i s/root/"#root"/g /etc/cockpit/disallowed-users
+dnf install cockpit cockpit-storaged cockpit-networkmanager cockpit-packagekit -y
+sed -i s/root/$hostname/g /etc/cockpit/disallowed-users
 systemctl enable cockpit.socket
 
 sudo sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
@@ -241,7 +244,6 @@ ldconfig
 #Install Dahdi
 echo "Install Dahdi"
 ln -sf /usr/lib/modules/$(uname -r)/vmlinux.xz /boot/
-mkdir -p /etc/include
 cd /etc/include
 wget https://dialer.one/newt.h
 
@@ -251,7 +253,6 @@ cd dahdi-linux-complete-3.4.0+3.4.0
 wget https://cybur-dial.com/downloads/dahdi-alma10.zip
 unzip dahdi-alma10.zip
 yum in newt* -y
-
 
 ##ExecStart=/usr/sbin/dahdi_cfg -vv
 
@@ -267,6 +268,13 @@ make clean
 make
 make install
 make install-config
+
+cp /usr/src/dahdi-linux-complete-3.4.0+3.4.0/tools/.libs/libtonezone.so.2.0.0 /usr/lib64/
+ln -sf /usr/lib64/libtonezone.so.2.0.0 /usr/lib64/libtonezone.so.2
+ln -sf /usr/lib64/libtonezone.so.2 /usr/lib64/libtonezone.so
+
+echo "/usr/lib64" > /etc/ld.so.conf.d/dahdi.conf
+ldconfig
 
 cp /etc/dahdi/system.conf.sample /etc/dahdi/system.conf
 modprobe dahdi
@@ -399,7 +407,7 @@ VARDB_port => 3306
 #  9 - Timeclock auto logout
 #  E - Email processor, (If multi-server system, this must only be on one server)
 #  S - SIP Logger (Patched Asterisk 13 required)
-VARactive_keepalives => 12345689EC
+VARactive_keepalives => 12345689C
 
 # Asterisk version VICIDIAL is installed for
 VARasterisk_version => 18.X
@@ -453,9 +461,6 @@ mysql -u root -e "use asterisk; INSERT INTO vicidial_confbridges VALUES (9600000
 
 echo "Populate AREA CODES"
 /usr/share/astguiclient/ADMIN_area_code_populate.pl
-echo "Replace OLD IP. You need to Enter your Current IP here"
-
-/usr/share/astguiclient/ADMIN_update_server_ip.pl --old-server_ip=10.10.10.15 --server_ip=$ip_address --auto
 
 
 perl install.pl --no-prompt
@@ -556,8 +561,8 @@ cat <<CRONTAB>> /root/crontab-file
 ### Dialer Inventory Report
 1 7 * * * /usr/share/astguiclient/AST_dialer_inventory_snapshot.pl -q --override-24hours
 
-### inbound email parser
-* * * * * /usr/share/astguiclient/AST_inbound_email_parser.pl
+### inbound email parser - not enabled by default
+#* * * * * /usr/share/astguiclient/AST_inbound_email_parser.pl
 
 ### Daily Reboot
 #30 6 * * * /sbin/reboot
@@ -713,6 +718,7 @@ firewall-offline-cmd --add-port=446/tcp --zone=public
 cd /usr/src/astguiclient/trunk/extras/ip_relay/
 unzip ip_relay_1.1.112705.zip
 cd ip_relay_1.1/src/unix/
+sed -i '1i #include <unistd.h>' ../lib_ip_relay.c
 make
 cp ip_relay ip_relay2
 mv -f ip_relay /usr/bin/
@@ -802,12 +808,12 @@ sox -t ul -r 8000 -c 1 ../mohmp3/manolo_camp-morning_coffee.ulaw -t ul manolo_ca
 tee -a ~/.bashrc <<EOF
 
 # Commands
-#/usr/share/astguiclient/ADMIN_keepalive_ALL.pl --cu3way
-#/usr/bin/systemctl status httpd --no-pager
-#/usr/bin/systemctl status firewalld --no-pager
-#/usr/bin/screen -ls
-#/usr/sbin/dahdi_cfg -v
-#/usr/sbin/asterisk -V
+/usr/share/astguiclient/ADMIN_keepalive_ALL.pl --cu3way
+/usr/bin/systemctl status httpd --no-pager
+/usr/bin/systemctl status firewalld --no-pager
+/usr/bin/screen -ls
+/usr/sbin/dahdi_cfg -v
+/usr/sbin/asterisk -V
 EOF
 
 
@@ -895,15 +901,6 @@ eventfilter=Event: Meetme
 eventfilter=Event: Confbridge
 EOF
 
-yum in certbot -y
-systemctl enable certbot-renew.timer
-systemctl start certbot-renew.timer
-cd /usr/src/vicidial-install-scripts
-chmod +x vicidial-enable-webrtc.sh
-service firewalld stop
-./vicidial-enable-webrtc.sh
-service firewalld start
-systemctl enable firewalld
 
 firewall-cmd --add-port=10000-20000/udp --permanent
 firewall-cmd --add-service=http --permanent --zone=trusted
@@ -916,14 +913,138 @@ chown -R apache:apache /var/spool/asterisk/
 ## sed -i s/DOMAINNAME/"$DOMAINNAME"/g /var/www/vhosts/dynportal/inc/defaults.inc.php
 ## sed -i s/DOMAINNAME/"$DOMAINNAME"/g /home/viciportal-ssl.conf
 
-mysql -e "use asterisk; update system_settings set active_voicemail_server='$ip_address', webphone_url='https://$hostname/CyburPhone/cyburphone.php', sounds_web_server='https://$hostname';"
+## mysql -e "use asterisk; update system_settings set active_voicemail_server='$ip_address', webphone_url='https://$hostname/CyburPhone/cyburphone.php', sounds_web_server='https://$hostname';"
+
+echo "d /run/screen 1777 root root -" > /etc/tmpfiles.d/screen.conf
+systemd-tmpfiles --create /etc/tmpfiles.d/screen.conf
+
+# Standard DB installer and placeholder-fix helper
+# Usage: run interactively inside your installer
+
+# detect primary server IP (robust)
+ip_address=$ip_address
+if [ -z "$ip_address" ]; then
+  ip_address="$(ip route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++){if($i=="src"){print $(i+1); exit}}}')" 
+fi
+if [ -z "$ip_address" ]; then
+  echo "Could not detect server IP automatically. Please enter the server IP:"
+  read -r ip_address
+fi
+
+# detect hostname (short)
+hostname="$(hostname 2>/dev/null)"
+if [ -z "$hostname" ]; then
+  echo "Could not detect hostname automatically. Please enter the hostname:"
+  read -r hostname
+fi
+
+echo "Detected IP: $ip_address"
+echo "Detected Hostname: $hostname"
+echo
+
+read -r -p "Install standard ready-to-go database using standard-db.sh? [y/N]: " want_db
+want_db="${want_db:-N}"
+
+if echo "$want_db" | grep -iq '^y'; then
+  # download standard-db.sh from the repo commit (use your raw URL / commit OID)
+  STD_DB_URL="https://raw.githubusercontent.com/carpenox/vicidial-install-scripts/e3373b9b035d3b7534af2fc1eeb3d713b4b15c22/standard-db.sh"
+  TMP_STDDB="/tmp/standard-db.sh"
+
+  echo "Fetching standard-db.sh..."
+  if ! curl -fsSL -o "$TMP_STDDB" "$STD_DB_URL"; then
+    echo "Failed to download standard-db.sh from $STD_DB_URL"
+    echo "If you have a local copy, set STDDB_PATH to its path and re-run."
+    exit 1
+  fi
+
+  chmod +x "$TMP_STDDB"
+  echo "Running $TMP_STDDB ..."
+  /bin/sh "$TMP_STDDB" || {
+    echo "standard-db.sh failed. Inspect output above."
+    # continue — we still try to fix server IP / placeholders
+  }
+
+  # run astguiclient IP update (use --old-server_ip value used inside standard-db.sh if known)
+  # standard-db.sh uses --old-server_ip=149.28.96.244 — we update to detected IP and run --auto
+  if [ -x /usr/share/astguiclient/ADMIN_update_server_ip.pl ]; then
+    echo "Updating server IP in astguiclient DB files..."
+      /usr/share/astguiclient/ADMIN_update_server_ip.pl --old-server_ip=149.28.96.244 --server_ip=$ip_address --auto || \
+      echo "ADMIN_update_server_ip.pl failed or returned non-zero."
+  else
+    echo "WARNING: /usr/share/astguiclient/ADMIN_update_server_ip.pl not found; skipping automatic DB IP update."
+  fi
+
+
+
+  # Update Vicidial system_settings table for webphone_url, sounds_web_server, active_voicemail_server
+  echo "Applying Vicidial DB updates for webphone_url, sounds_web_server and active_voicemail_server (requires mysql client + root access)."
+  if command -v mysql >/dev/null 2>&1; then
+    # Attempt with no-password mysql first; if that fails, it will prompt or fail silently
+    echo "mysql -u root -p -e \"USE asterisk; UPDATE system_settings SET active_voicemail_server='$ip_address', webphone_url='https://$hostname/CyburPhone/cyburphone.php', sounds_web_server='https://$hostname';\""
+  else
+    echo "mysql client not found; SKIPPING Vicidial DB updates. Run the command shown above manually once mysql client available."
+  fi
+
+  echo
+  echo "Standard DB install and placeholder replacement finished. Please inspect backups (*.bak.std_replace) if needed."
+else
+  echo "Skipping standard DB install."
+fi
+
+yum in certbot -y
+systemctl enable certbot-renew.timer
+systemctl start certbot-renew.timer
+cd /usr/src/vicidial-install-scripts
+chmod +x vicidial-enable-webrtc.sh
+service firewalld stop
+./vicidial-enable-webrtc.sh
+service firewalld start
+systemctl enable firewalld
+
+#rm -rf /etc/firewalld/zones/PUBLIC.xml
+#firewall-cmd --zone=external --add-port=5060/udp --permanent
+#firewall-cmd --zone=external --add-port=5060/tcp --permanent
+#firewall-cmd --zone=external --add-port=5061/tcp --permanent   
+#firewall-cmd --zone=external --add-service=https --permanent
+#firewall-cmd --zone=external --add-service=http --permanent
+#firewall-cmd --zone=public --add-port=10000-20000/udp --permanent
+#firewall-cmd --zone=public --add-port=8089/tcp --permanent
+ 
+#firewall-cmd --zone=trusted --remove-source=ipset:dynamic --permanent
+#firewall-cmd --zone=trusted --remove-source=ipset:dynamiclist --permanent
+#firewall-cmd --zone=trusted --remove-source=ipset:whiteips --permanent
+#firewall-cmd --zone=external --add-source=ipset:dynamic --permanent
+#firewall-cmd --zone=external --add-source=ipset:dynamiclist --permanent
+#firewall-cmd --zone=external --add-source=ipset:whiteips --permanent
+ 
+ 
+#firewall-cmd --reload
 
 cp /etc/letsencrypt/live/$hostname/fullchain.pem /etc/cockpit/ws-certs.d/wildcart.$hostname.cert
 cp /etc/letsencrypt/live/$hostname/privkey.pem /etc/cockpit/ws-certs.d/wildcart.$hostname.key
 systemctl restart cockpit.socket
 
-echo "d /run/screen 1777 root root -" > /etc/tmpfiles.d/screen.conf
-systemd-tmpfiles --create /etc/tmpfiles.d/screen.conf
+mysql -e "use asterisk; update servers set web_socket_url='wss://$hostname:8089/ws';"
+
+echo "Add IP servers external_server_ip"
+echo "%%%%%%%%%%%%%%%This Wont work if you SET root Password%%%%%%%%%%%%%%%"
+mysql -e "use asterisk; update servers set external_server_ip='$ip_address';"
+
+echo "Add DOMAINAME servers recording_web_link"
+echo "%%%%%%%%%%%%%%%This Wont work if you SET root Password%%%%%%%%%%%%%%%"
+mysql -e "use asterisk; update servers set 	alt_server_ip='$hostname';"
+
+echo "Add DOMAINAME system_settings webphone_url"
+echo "%%%%%%%%%%%%%%%This Wont work if you SET root Password%%%%%%%%%%%%%%%"
+
+mysql -e "use asterisk; UPDATE system_settings SET active_voicemail_server='$ip_address', webphone_url='https://$hostname/CyburPhone/cyburphone.php', sounds_web_server='https://$hostname';"
+
+groupadd asterisk
+useradd -r -d /var/lib/asterisk -g asterisk asterisk
+chown -R asterisk:asterisk /var/spool/asterisk
+chmod -R 775 /var/spool/asterisk
+
+curl -sL https://download.amdy.io/download/dial-dropdown.sh | bash
 
 read -p 'Press Enter to Reboot: '
 
