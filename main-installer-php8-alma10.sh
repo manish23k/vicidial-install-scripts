@@ -242,6 +242,7 @@ make install
 ldconfig
 
 #Install Dahdi
+mkdir -p /etc/include
 echo "Install Dahdi"
 ln -sf /usr/lib/modules/$(uname -r)/vmlinux.xz /boot/
 cd /etc/include
