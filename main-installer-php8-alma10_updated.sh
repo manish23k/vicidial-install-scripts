@@ -137,16 +137,20 @@ if ! command -v sngrep >/dev/null 2>&1 && [[ ! -x /usr/local/bin/sngrep ]]; then
         trap 'rm -rf -- "$build_dir"' EXIT
         cd "$build_dir" || exit 1
 
-        dnf install -y gcc make libpcap-devel ncurses-devel &&
+        dnf install -y gcc make autoconf automake pkgconf-pkg-config \
+            libpcap-devel ncurses-devel &&
         curl -fLsS --retry 3 \
             https://github.com/irontec/sngrep/releases/download/v1.8.4/sngrep-1.8.4.tar.gz \
             -o sngrep.tar.gz &&
         echo '0f5cc5a356edc1327f1b916fedd9eb0fd1472eda360a04dfe59cabe15a346ee1  sngrep.tar.gz' | sha256sum -c - &&
         tar -xzf sngrep.tar.gz &&
         cd sngrep-1.8.4 &&
+        sh ./bootstrap.sh &&
+        test -x ./configure &&
         ./configure --prefix=/usr/local &&
         make -j"$(nproc)" &&
-        make install
+        make install &&
+        /usr/local/bin/sngrep -V
     ) || echo "Optional tool sngrep could not be installed." >&2
 fi
 
