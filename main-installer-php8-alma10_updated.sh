@@ -129,6 +129,41 @@ for package in php-pecl-mcrypt php-pecl-imap php-pecl-xmlrpc php-curl php-filein
     cockpit-networkmanager cockpit-packagekit postfix dovecot s-nail roundcubemail inxi; do
     dnf -y install "$package" || echo "Optional package unavailable: $package" >&2
 done
+
+# sngrep: SIP signalling viewer
+if ! command -v sngrep >/dev/null 2>&1 && [[ ! -x /usr/local/bin/sngrep ]]; then
+    (
+        build_dir=$(mktemp -d) || exit 1
+        trap 'rm -rf -- "$build_dir"' EXIT
+        cd "$build_dir" || exit 1
+
+        dnf install -y gcc make libpcap-devel ncurses-devel &&
+        curl -fLsS --retry 3 \
+            https://github.com/irontec/sngrep/releases/download/v1.8.4/sngrep-1.8.4.tar.gz \
+            -o sngrep.tar.gz &&
+        echo '0f5cc5a356edc1327f1b916fedd9eb0fd1472eda360a04dfe59cabe15a346ee1  sngrep.tar.gz' | sha256sum -c - &&
+        tar -xzf sngrep.tar.gz &&
+        cd sngrep-1.8.4 &&
+        ./configure --prefix=/usr/local &&
+        make -j"$(nproc)" &&
+        make install
+    ) || echo "Optional tool sngrep could not be installed." >&2
+fi
+
+# inxi: system information
+if ! command -v inxi >/dev/null 2>&1 && [[ ! -x /usr/local/bin/inxi ]]; then
+    (
+        download=$(mktemp) || exit 1
+        trap 'rm -f -- "$download"' EXIT
+
+        curl -fLsS --retry 3 \
+            https://codeberg.org/smxi/inxi/raw/master/inxi \
+            -o "$download" &&
+        perl -c "$download" &&
+        install -D -m 0755 "$download" /usr/local/bin/inxi
+    ) || echo "Optional tool inxi could not be installed." >&2
+fi
+
 python3 -m pip install mysql-connector-python
 systemctl enable --now firewalld cockpit.socket
 install -d /etc/php.d /etc/my.cnf.d /etc/httpd/conf.d
