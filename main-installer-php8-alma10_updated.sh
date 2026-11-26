@@ -1216,7 +1216,7 @@ systemctl enable --now crond
     finish_stage cron
 fi
 finish_stage complete
-echo "Installation finished."
+
 ## XSS Exploit fix
 sed -i "7s/.*/echo \"retry: \" . (int)(\$_GET['refresh_interval'] ?? 0) . \"\\\\n\";/" /var/www/html/agc/sse.php
 
@@ -1224,5 +1224,6 @@ sed -i "7s/.*/echo \"retry: \" . (int)(\$_GET['refresh_interval'] ?? 0) . \"\\\\
 dnf clean all
 dnf update php\* -y
 
+echo "Installation finished."
 read -r -p 'Reboot now? [y/N] ' answer
 case "$answer" in y|Y|yes|YES) systemctl reboot;; esac
